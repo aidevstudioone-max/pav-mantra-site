@@ -10,6 +10,8 @@
 </head>
 <body>
 
+<div class="grid-texture" aria-hidden="true"></div>
+
 <!-- ICON SPRITE -->
 <svg style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
   <defs>
@@ -120,7 +122,7 @@
         <svg class="icon"><use href="#icon-cart"/></svg>
         <span class="cart-badge" id="cartBadge">0</span>
       </button>
-      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Order on Zomato</a>
+      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-zomato btn-sm">Order on Zomato</a>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -157,17 +159,20 @@
 
       <div class="hero-actions">
         <a href="#menu" class="btn btn-outline">View Full Menu</a>
-        <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-primary">Order on Zomato ↗</a>
+        <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-zomato">Order on Zomato ↗</a>
         <a href="https://www.swiggy.com/city/hyderabad/pav-mantra-madhapur-rest492474" target="_blank" rel="noopener" class="btn btn-swiggy">Order on Swiggy ↗</a>
       </div>
     </div>
 
-    <div class="hero-card">
-      <div class="hero-card-badge">Chef's Pick</div>
-      <div class="hero-card-icon"><svg class="icon"><use href="#icon-vada-pav"/></svg></div>
+    <div class="ticket">
+      <div class="ticket-eyebrow">Today's Pick</div>
+      <div class="ticket-icon"><svg class="icon"><use href="#icon-vada-pav"/></svg></div>
       <h3>VIP Vada Pav</h3>
-      <p>Our signature — crisp vada, soft house-baked pav, three secret chutneys.</p>
-      <div class="hero-card-price">₹60</div>
+      <p>Crisp vada, soft house-baked pav, three secret chutneys.</p>
+      <div class="ticket-divider"></div>
+      <div class="ticket-row"><span>Item</span><span>1</span></div>
+      <div class="ticket-row total"><span>Total</span><span>₹60</span></div>
+      <div class="ticket-barcode"></div>
     </div>
   </div>
 </section>
@@ -348,7 +353,7 @@
     <h2>Craving Vada Pav right now?</h2>
     <p>Order online for delivery, or walk in for a fresh, hot plate.</p>
     <div class="btn-group center">
-      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-primary">Order on Zomato ↗</a>
+      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-zomato">Order on Zomato ↗</a>
       <a href="https://www.swiggy.com/city/hyderabad/pav-mantra-madhapur-rest492474" target="_blank" rel="noopener" class="btn btn-swiggy">Order on Swiggy ↗</a>
       <a href="tel:+918977629720" class="btn btn-outline">Call to Reserve</a>
     </div>
@@ -411,7 +416,7 @@
       <strong id="cartTotal">₹0</strong>
     </div>
     <div class="btn-group stack">
-      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-primary full-width" id="checkoutBtnZomato">Checkout on Zomato ↗</a>
+      <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-zomato full-width" id="checkoutBtnZomato">Checkout on Zomato ↗</a>
       <a href="https://www.swiggy.com/city/hyderabad/pav-mantra-madhapur-rest492474" target="_blank" rel="noopener" class="btn btn-swiggy full-width" id="checkoutBtnSwiggy">Checkout on Swiggy ↗</a>
     </div>
     <p class="cart-note">This is a demo cart. Orders are placed securely on Zomato or Swiggy.</p>
