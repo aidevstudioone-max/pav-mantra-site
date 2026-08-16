@@ -417,13 +417,16 @@ function initHeroActionsHover() {
 }
 
 // ---------- Scroll reveals ----------
-// Fades + slides sections in as they scroll into view. Built on
-// IntersectionObserver rather than GSAP's ScrollTrigger plugin: ScrollTrigger
-// batching turned out to be unreliable for content near the top of the page
-// (its "already visible on load" check wasn't firing consistently), while
-// IntersectionObserver handles that case correctly by design -- it reports
-// the current intersection state as soon as you call observe(), so elements
-// already on screen at load reveal immediately instead of staying stuck.
+// Fades + slides sections in as they scroll into view, and fades them back
+// out when they scroll out of view (either direction) so the animation
+// replays every time you scroll past a section again -- not just the first
+// time. Built on IntersectionObserver rather than GSAP's ScrollTrigger
+// plugin: ScrollTrigger batching turned out to be unreliable for content
+// near the top of the page (its "already visible on load" check wasn't
+// firing consistently), while IntersectionObserver handles that case
+// correctly by design -- it reports the current intersection state as soon
+// as you call observe(), so elements already on screen at load reveal
+// immediately instead of staying stuck.
 function initScrollReveals() {
   if (!hasGsap || reduceMotion) return;
 
@@ -454,19 +457,28 @@ function initScrollReveals() {
     // even though each element is revealed by its own observer entry.
     const indexOf = new Map(els.map((el, i) => [el, i]));
 
+    // Note: no `once`/unobserve here (unlike a typical one-shot reveal) --
+    // the observer keeps watching for the life of the page so it can toggle
+    // the animation both ways as the user scrolls back and forth.
     const observer = new IntersectionObserver(
-      (entries, obs) => {
+      (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          gsap.to(entry.target, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            delay: stagger ? indexOf.get(entry.target) * stagger : 0,
-            ease: "power2.out",
-            overwrite: true,
-          });
-          obs.unobserve(entry.target); // reveal once, then stop watching
+          if (entry.isIntersecting) {
+            // Scrolled into view: fade/slide in, staggered within the group.
+            gsap.to(entry.target, {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              delay: stagger ? indexOf.get(entry.target) * stagger : 0,
+              ease: "power2.out",
+              overwrite: true,
+            });
+          } else {
+            // Scrolled out of view (up or down): reset to the hidden state
+            // so the reveal plays again next time it re-enters. No stagger
+            // here -- everything should hide together, not trickle out.
+            gsap.to(entry.target, { opacity: 0, y, duration: 0.4, ease: "power2.in", overwrite: true });
+          }
         });
       },
       { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
