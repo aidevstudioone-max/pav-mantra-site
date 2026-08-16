@@ -167,7 +167,7 @@
     </div>
 
     <div class="ticket">
-      <div class="ticket-eyebrow">Today's Pick</div>
+      <div class="ticket-eyebrow">Today's Pick <span id="lottieSpark" class="lottie-spark" aria-hidden="true"></span></div>
       <div class="ticket-icon"><svg class="icon"><use href="#icon-vada-pav"/></svg></div>
       <h3>VIP Vada Pav</h3>
       <p>Crisp vada, soft house-baked pav, three secret chutneys.</p>
@@ -429,5 +429,11 @@
      ScrollTrigger plugin isn't needed. GSAP still powers the actual tweens. -->
 <script src="vendor/gsap.min.js"></script>
 <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+<script>
+  fetch('lottie/pulse-spark.json').then((r) => r.json()).then((data) => {
+    if (window.lottie) lottie.loadAnimation({ container: document.getElementById('lottieSpark'), renderer: 'svg', loop: true, autoplay: true, animationData: data });
+  }).catch(() => {});
+</script>
 </body>
 </html>

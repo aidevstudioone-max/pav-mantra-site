@@ -318,6 +318,14 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
   text-transform: uppercase;
   letter-spacing: 1.2px;
   margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lottie-spark {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
 }
 .ticket-icon {
   width: 64px; height: 64px;
