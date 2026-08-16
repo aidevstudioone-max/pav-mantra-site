@@ -1,4 +1,11 @@
+// =========================================================================
+// Pav Mantra — site data + interactivity.
+// Sections: menu data, menu rendering/filtering, cart, nav, and GSAP-powered
+// entrance/hover/scroll animations. No build step / framework — plain DOM.
+// =========================================================================
+
 // ---------- Menu Data (based on Pav Mantra's real signature dishes) ----------
+// `icon` refers to a <symbol id="icon-*"> defined in the sprite at the top of index.html.
 const MENU = [
   {
     category: "Pav Corner",
@@ -43,18 +50,25 @@ const MENU = [
 ];
 
 // ---------- State ----------
+// Cart persists across visits via localStorage: { [itemId]: quantity }.
 let cart = JSON.parse(localStorage.getItem("pavMantraCart") || "{}");
 let activeCategory = "all";
 
+// Respect the OS-level "reduce motion" accessibility setting: every GSAP call
+// below is guarded with `!reduceMotion` so animations are skipped entirely
+// (not just shortened) for anyone who has asked their system to avoid motion.
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// GSAP core is loaded from vendor/gsap.min.js; this guards against it failing
+// to load (e.g. offline) so the site still works, just without animation.
 const hasGsap = typeof gsap !== "undefined";
-if (hasGsap && typeof ScrollTrigger !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
+// Renders an inline <svg><use> pointing at one of the icon-sprite symbols.
 function iconRef(id) {
   return `<svg class="icon"><use href="#icon-${id}"/></svg>`;
 }
 
 // ---------- Render Category Pills ----------
+// Builds the "All / Pav Corner / Misal & Pulao / ..." filter pills above the menu.
 function renderPills() {
   const wrap = document.getElementById("categoryPills");
   const all = [{ category: "all", icon: "plate" }, ...MENU];
@@ -77,11 +91,15 @@ function renderPills() {
   });
 }
 
+// Turns a category name into a URL/DOM-safe id fragment, e.g. "Pav Corner" -> "pav-corner".
 function slug(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
 // ---------- Render Menu ----------
+// Re-renders the whole menu list from MENU + the current search term/category
+// filter. Called on load, on every keystroke in the search box, and whenever
+// a category pill is clicked.
 function renderMenu() {
   const container = document.getElementById("menuContainer");
   const searchTerm = document.getElementById("menuSearch").value.trim().toLowerCase();
@@ -110,6 +128,8 @@ function renderMenu() {
   container.innerHTML = html;
   document.getElementById("noResults").classList.toggle("hidden", anyVisible);
 
+  // innerHTML replacement above wipes out any previously-bound listeners,
+  // so every render re-wires the add/increment/decrement buttons.
   container.querySelectorAll("[data-add]").forEach((btn) => {
     btn.addEventListener("click", () => addToCart(btn.dataset.add));
   });
@@ -123,9 +143,12 @@ function renderMenu() {
   animateMenuIn();
 }
 
+// Fades/staggers the (freshly re-rendered) menu rows and category headers in.
+// This runs on every renderMenu() call -- not just on page load -- so filtering
+// by search or category always gives a little motion instead of an instant snap.
 function animateMenuIn() {
-  const rows = document.querySelectorAll(".menu-item");
   if (!hasGsap || reduceMotion) return;
+  const rows = document.querySelectorAll(".menu-item");
   gsap.fromTo(
     rows,
     { opacity: 0, y: 14 },
@@ -138,6 +161,9 @@ function animateMenuIn() {
   );
 }
 
+// Renders a single menu row (name/description on the left, price + add-or-qty
+// control on the right). No per-item icon by design -- the category header
+// icon is enough context, and it keeps the list scannable like a real menu.
 function renderItem(item) {
   const qty = cart[item.id] || 0;
   return `
@@ -164,6 +190,7 @@ function renderItem(item) {
   </div>`;
 }
 
+// Looks up a menu item by id across all categories (cart entries only store the id).
 function findItem(id) {
   for (const cat of MENU) {
     const found = cat.items.find((i) => i.id === id);
@@ -193,6 +220,8 @@ function saveCart() {
   localStorage.setItem("pavMantraCart", JSON.stringify(cart));
 }
 
+// Quick "pop" feedback on the cart icon/badge whenever an item is added --
+// a yoyo'd scale on the badge plus a little wiggle on the button itself.
 function bumpCartBadge() {
   if (!hasGsap || reduceMotion) return;
   gsap.fromTo(
@@ -208,6 +237,7 @@ function bumpCartBadge() {
 }
 
 // ---------- Cart Drawer ----------
+// Rebuilds the slide-out cart panel's contents + total from `cart`.
 function renderCart() {
   const itemsWrap = document.getElementById("cartItems");
   const ids = Object.keys(cart);
@@ -248,6 +278,10 @@ function renderCart() {
   itemsWrap.querySelectorAll("[data-dec]").forEach((btn) => btn.addEventListener("click", () => changeQty(btn.dataset.dec, -1)));
 }
 
+// Slides the cart drawer in from the right and fades in its overlay.
+// Animates the plain `right` CSS property (not a transform) -- GSAP's
+// `xPercent` was tried here first but conflicts with any transform the
+// element already has, so `right` keeps things simple and reliable.
 function openCart() {
   const drawer = document.getElementById("cartDrawer");
   const overlay = document.getElementById("cartOverlay");
@@ -257,6 +291,8 @@ function openCart() {
     gsap.to(overlay, { opacity: 1, duration: 0.25, ease: "power1.out", overwrite: true });
     gsap.to(drawer, { right: 0, duration: 0.45, ease: "power3.out", overwrite: true });
   }
+  // When GSAP is unavailable or motion is reduced, the "open" class alone
+  // still shows the drawer via the CSS `.cart-drawer.open { right: 0; }` rule.
 }
 function closeCart() {
   const drawer = document.getElementById("cartDrawer");
@@ -311,7 +347,9 @@ function initNav() {
     link.addEventListener("click", () => navLinks.classList.remove("open"));
   });
 
-  // Active link on scroll
+  // Highlights the nav link for whichever section is currently centered
+  // in the viewport, using a thin horizontal band (-40%/-50% margins)
+  // around the vertical middle of the screen as the "active" zone.
   const sections = ["home", "menu", "about", "gallery", "reviews", "location"];
   const links = document.querySelectorAll(".nav-link");
   const observer = new IntersectionObserver(
@@ -333,6 +371,9 @@ function initNav() {
 }
 
 // ---------- Hero entrance ----------
+// One-shot GSAP timeline that plays once on page load: each hero element
+// fades/slides in slightly overlapping the previous one (the negative
+// "-=0.3" style offsets), finishing with the order-ticket card sliding in.
 function playHeroIntro() {
   if (!hasGsap || reduceMotion) return;
   const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -349,10 +390,45 @@ function playHeroIntro() {
     );
 }
 
-// ---------- Scroll reveals ----------
-function initScrollReveals() {
-  if (!hasGsap || !ScrollTrigger || reduceMotion) return;
+// Hover feedback for the three hero CTAs ("View Full Menu" / "Order on
+// Zomato" / "Order on Swiggy"): a small lift + scale plus a soft glow that
+// matches each button's own color, so it reads as "this button is alive"
+// beyond the plain CSS `:hover` transform already on .btn.
+function initHeroActionsHover() {
+  if (!hasGsap || reduceMotion) return;
+  document.querySelectorAll(".hero-actions .btn").forEach((btn) => {
+    // Read the button's own text/border color so the glow matches its theme
+    // (gold for primary, red for Zomato, orange for Swiggy) rather than
+    // hardcoding one color for all three.
+    const glowColor = getComputedStyle(btn).borderColor;
+    btn.addEventListener("mouseenter", () => {
+      gsap.to(btn, {
+        scale: 1.06,
+        boxShadow: `0 8px 28px ${glowColor}`,
+        duration: 0.3,
+        ease: "power2.out",
+        overwrite: true,
+      });
+    });
+    btn.addEventListener("mouseleave", () => {
+      gsap.to(btn, { scale: 1, boxShadow: "0 0 0 rgba(0,0,0,0)", duration: 0.3, ease: "power2.out", overwrite: true });
+    });
+  });
+}
 
+// ---------- Scroll reveals ----------
+// Fades + slides sections in as they scroll into view. Built on
+// IntersectionObserver rather than GSAP's ScrollTrigger plugin: ScrollTrigger
+// batching turned out to be unreliable for content near the top of the page
+// (its "already visible on load" check wasn't firing consistently), while
+// IntersectionObserver handles that case correctly by design -- it reports
+// the current intersection state as soon as you call observe(), so elements
+// already on screen at load reveal immediately instead of staying stuck.
+function initScrollReveals() {
+  if (!hasGsap || reduceMotion) return;
+
+  // Each group is a selector plus how far (in px) it should slide up while
+  // fading in, and an optional stagger (in seconds) between matched elements.
   const groups = [
     { selector: ".section-heading", y: 24 },
     { selector: ".about-copy > *", y: 20, stagger: 0.08 },
@@ -368,14 +444,35 @@ function initScrollReveals() {
   groups.forEach(({ selector, y, stagger }) => {
     const els = gsap.utils.toArray(selector);
     if (!els.length) return;
-    els.forEach((el) => (el.style.opacity = 0));
-    ScrollTrigger.batch(els, {
-      start: "top 88%",
-      once: true,
-      onEnter: (batch) =>
-        gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: stagger || 0, overwrite: true }),
-    });
-    gsap.set(els, { y });
+
+    // Set the "hidden" starting state before observing, so there's no flash
+    // of fully-visible content before the observer's first callback fires.
+    gsap.set(els, { opacity: 0, y });
+
+    // Index lookup so grid/list items (gallery tiles, about icons, footer
+    // columns, ...) can stagger relative to their position in the group,
+    // even though each element is revealed by its own observer entry.
+    const indexOf = new Map(els.map((el, i) => [el, i]));
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          gsap.to(entry.target, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            delay: stagger ? indexOf.get(entry.target) * stagger : 0,
+            ease: "power2.out",
+            overwrite: true,
+          });
+          obs.unobserve(entry.target); // reveal once, then stop watching
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    els.forEach((el) => observer.observe(el));
   });
 }
 
@@ -393,7 +490,27 @@ function initGalleryHover() {
   });
 }
 
+// Hover animation for the 4 icon tiles under "Our Story" -- the CSS handles
+// the border/glow (see .about-emoji-grid span:hover in style.css); GSAP just
+// adds a little spring to the icon itself so the two effects read as one motion.
+function initAboutGridHover() {
+  if (!hasGsap || reduceMotion) return;
+  document.querySelectorAll(".about-emoji-grid span").forEach((tile) => {
+    const icon = tile.querySelector(".icon");
+    tile.addEventListener("mouseenter", () => {
+      gsap.to(icon, { scale: 1.12, duration: 0.3, ease: "back.out(3)", overwrite: true });
+    });
+    tile.addEventListener("mouseleave", () => {
+      gsap.to(icon, { scale: 1, duration: 0.3, ease: "power2.out", overwrite: true });
+    });
+  });
+}
+
 // ---------- Button press feedback ----------
+// A small squash-and-recover pulse on any button-like element when clicked,
+// delegated to one document-level listener rather than binding per-button
+// (menu buttons get replaced on every renderMenu(), so per-button binding
+// would need constant re-wiring).
 function initButtonFeedback() {
   if (!hasGsap || reduceMotion) return;
   document.addEventListener("click", (e) => {
@@ -417,7 +534,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("menuSearch").addEventListener("input", renderMenu);
 
   playHeroIntro();
+  initHeroActionsHover();
   initScrollReveals();
   initGalleryHover();
+  initAboutGridHover();
   initButtonFeedback();
 });

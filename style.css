@@ -356,13 +356,14 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
 .info-item a:hover { color: var(--accent); }
 
 /* ---------- Section heading ---------- */
+/* text-align:center here is what centers the eyebrow/h2/p below, since they're
+   inline-level content; no per-element centering needed. */
 .section-heading { text-align: center; max-width: 560px; margin: 0 auto 46px; }
 .eyebrow-line {
   display: inline-flex; align-items: center; gap: 8px;
   color: var(--accent); font-weight: 700; font-size: 0.76rem;
   letter-spacing: 1.3px; text-transform: uppercase; margin-bottom: 12px;
 }
-.eyebrow-line::before { content: ""; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 .section-heading h2 { font-size: clamp(1.9rem, 3.4vw, 2.5rem); margin-bottom: 12px; text-wrap: balance; color: var(--ink); }
 .section-heading p { color: var(--muted); }
 .section-heading a { color: var(--accent); font-weight: 700; }
@@ -539,6 +540,13 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
   aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
   color: var(--accent);
+  /* border-color/glow are transitioned here; the icon's own scale/rotate is
+     handled separately via GSAP in initAboutGridHover() for a springier feel */
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.about-emoji-grid span:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(232, 163, 61, 0.35);
 }
 .about-emoji-grid span .icon { width: 40%; height: 40%; stroke-width: 1.5; }
 
@@ -691,6 +699,15 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
 }
 
 /* ---------- Responsive ---------- */
+/* Two order buttons (Zomato + Swiggy) plus the full nav-link list don't fit
+   next to the logo below ~1024px, even though the hamburger menu doesn't take
+   over until 720px -- so the buttons are hidden a bit earlier than that to
+   avoid the navbar overflowing horizontally on tablet-width screens. They're
+   still available in the hero, CTA section, footer, and cart drawer. */
+@media (max-width: 1024px) {
+  .nav-actions .btn-sm { display: none; }
+}
+
 @media (max-width: 900px) {
   .hero-inner { grid-template-columns: 1fr; }
   .ticket { max-width: 340px; margin: 0 auto; order: -1; }
@@ -707,7 +724,6 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
   .nav-links.open { transform: translateY(0); }
   .nav-link { padding: 12px 0; border-bottom: 1px solid var(--line); }
   .hamburger { display: flex; }
-  .nav-actions .btn-sm { display: none; }
   .hero { padding: 40px 0 60px; }
   .footer-inner { grid-template-columns: 1fr; }
   .menu-item { flex-wrap: wrap; }

@@ -122,7 +122,9 @@
         <svg class="icon"><use href="#icon-cart"/></svg>
         <span class="cart-badge" id="cartBadge">0</span>
       </button>
+      <!-- Both delivery platforms shown side by side; hidden on mobile in favor of the hamburger menu -->
       <a href="https://www.zomato.com/hyderabad/pav-mantra-3-madhapur/order" target="_blank" rel="noopener" class="btn btn-zomato btn-sm">Order on Zomato</a>
+      <a href="https://www.swiggy.com/city/hyderabad/pav-mantra-madhapur-rest492474" target="_blank" rel="noopener" class="btn btn-swiggy btn-sm">Order on Swiggy</a>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -396,7 +398,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>&copy; <span id="year"></span> Pav Mantra. Unofficial fan-made concept site — not affiliated with the restaurant's official ownership. Ordering happens on Zomato or Swiggy.</p>
+    <p>&copy; <span id="year"></span> Pav Mantra</p>
   </div>
 </footer>
 
@@ -423,8 +425,9 @@
   </div>
 </aside>
 
+<!-- GSAP core only -- scroll reveals use IntersectionObserver (see script.js), so the
+     ScrollTrigger plugin isn't needed. GSAP still powers the actual tweens. -->
 <script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
