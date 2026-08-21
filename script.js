@@ -436,7 +436,11 @@ function initScrollReveals() {
     { selector: ".section-heading", y: 24 },
     { selector: ".about-copy > *", y: 20, stagger: 0.08 },
     { selector: ".about-emoji-grid span", y: 20, stagger: 0.08 },
-    { selector: ".gallery-tile", y: 24, stagger: 0.07 },
+    // Reveals the whole carousel as one block rather than per-tile: the
+    // individual .gallery-tile elements have their transform owned by the
+    // Three.js CSS3DRenderer (see animations-3d.js), so animating a
+    // per-tile `y` here would fight that every frame.
+    { selector: ".gallery-carousel-wrap", y: 24 },
     { selector: ".rating-summary", y: 24 },
     { selector: ".tag-cloud .tag", y: 14, stagger: 0.04 },
     { selector: ".detail-card", y: 20, stagger: 0.08 },

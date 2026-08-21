@@ -546,8 +546,9 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
   border: 1px solid var(--line);
   border-radius: var(--radius);
   aspect-ratio: 1;
-  display: flex; align-items: center; justify-content: center;
+  display: block;
   color: var(--accent);
+  perspective: 800px;
   /* border-color/glow are transitioned here; the icon's own scale/rotate is
      handled separately via GSAP in initAboutGridHover() for a springier feel */
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -558,6 +559,33 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
 }
 .about-emoji-grid span .icon { width: 40%; height: 40%; stroke-width: 1.5; }
 
+/* Vertical (X-axis) 3D flip: hovering a dish icon rotates it to reveal a
+   short fact on the back face. transform-style/backface-visibility do the
+   3D work; Tailwind supplies the transition utility. */
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+.about-emoji-grid span:hover .flip-inner { transform: rotateX(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+}
+.flip-front { color: var(--accent); }
+.flip-back {
+  transform: rotateX(180deg);
+  padding: 10%;
+  text-align: center;
+}
+.flip-back p { font-size: 1.05rem; font-weight: 700; color: var(--ink); line-height: 1.4; }
+
 .eyebrow { color: var(--accent); font-weight: 700; font-size: 0.78rem; letter-spacing: 1.3px; text-transform: uppercase; }
 .about-copy h2 { font-size: clamp(1.9rem, 3.4vw, 2.4rem); margin: 12px 0 16px; line-height: 1.15; text-wrap: balance; color: var(--ink); }
 .about-copy p { color: var(--muted); margin-bottom: 22px; }
@@ -567,27 +595,52 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
 
 /* ---------- Gallery ---------- */
 .gallery { padding: 104px 0; }
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 150px;
-  gap: 14px;
+
+/* 3D rotating carousel -- Three.js (CSS3DRenderer) arranges the 6 tiles in a
+   ring in real 3D space and spins the whole ring on drag or on its own; see
+   initGalleryCarousel() in animations-3d.js. The container just needs a
+   fixed size for the renderer/camera to size against. */
+.gallery-carousel-wrap { max-width: 1040px; margin: 0 auto; }
+.gallery-carousel {
+  position: relative;
+  height: 440px;
+  touch-action: pan-y;
+  cursor: grab;
 }
+.gallery-carousel:active { cursor: grabbing; }
 .gallery-tile {
+  width: 270px;
+  height: 320px;
   background: var(--bg-elevated);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  gap: 18px;
   color: var(--accent);
+  transition: border-color 0.2s ease;
 }
-.gallery-tile:hover { transform: translateY(-3px); border-color: var(--accent); }
-.gallery-tile .icon { width: 32px; height: 32px; stroke-width: 1.6; }
-.gallery-tile p { font-weight: 700; font-size: 0.84rem; color: var(--ink); font-family: var(--font-body); }
-.gallery-tile.big { grid-row: span 2; grid-column: span 2; }
-.gallery-tile.big .icon { width: 56px; height: 56px; }
-.gallery-tile.big p { font-size: 1.05rem; }
+.gallery-tile:hover { border-color: var(--accent); }
+.gallery-tile .icon { width: 76px; height: 76px; stroke-width: 1.3; }
+.gallery-tile p { font-weight: 700; font-size: 1.35rem; color: var(--ink); font-family: var(--font-body); }
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 28px;
+}
+.carousel-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-elevated);
+  color: var(--ink);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.carousel-hint { color: var(--muted); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ---------- Reviews ---------- */
 .reviews { padding: 104px 0; background: var(--bg-elevated); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -723,8 +776,17 @@ h1, h2, h3, .logo-text, .hero-card h3, .stat strong,
   .about-inner { grid-template-columns: 1fr; }
   .location-grid { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr 1fr 1fr; }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  .gallery-tile.big { grid-column: span 2; }
+  .gallery-carousel { height: 340px; }
+  .gallery-tile { width: 220px; height: 270px; }
+  .gallery-tile .icon { width: 62px; height: 62px; }
+  .gallery-tile p { font-size: 1.1rem; }
+}
+
+@media (max-width: 480px) {
+  .gallery-carousel { height: 280px; }
+  .gallery-tile { width: 180px; height: 230px; }
+  .gallery-tile .icon { width: 52px; height: 52px; }
+  .gallery-tile p { font-size: 1rem; }
 }
 
 @media (max-width: 720px) {

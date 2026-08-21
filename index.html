@@ -7,6 +7,10 @@
 <meta name="description" content="Pav Mantra, Madhapur — authentic Vada Pav, Misal Pav, Dabeli & more. Order online on Zomato or Swiggy, or visit us on 100 Feet Road, Madhapur, Hyderabad.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥙</text></svg>">
 <link rel="stylesheet" href="style.css">
+<!-- Tailwind (Play CDN) -- used only for utility transition classes on a few
+     new interactive elements (carousel controls, flip-card faces); the rest
+     of the site's styling stays in style.css, untouched. -->
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -166,7 +170,7 @@
       </div>
     </div>
 
-    <div class="ticket">
+    <div class="ticket" id="heroTicket">
       <div class="ticket-eyebrow">Today's Pick <span id="lottieSpark" class="lottie-spark" aria-hidden="true"></span></div>
       <div class="ticket-icon"><svg class="icon"><use href="#icon-vada-pav"/></svg></div>
       <h3>VIP Vada Pav</h3>
@@ -231,10 +235,22 @@
   <div class="container about-inner">
     <div class="about-media">
       <div class="about-emoji-grid">
-        <span><svg class="icon"><use href="#icon-vada-pav"/></svg></span>
-        <span><svg class="icon"><use href="#icon-misal"/></svg></span>
-        <span><svg class="icon"><use href="#icon-dabeli"/></svg></span>
-        <span><svg class="icon"><use href="#icon-mastani"/></svg></span>
+        <span><div class="flip-inner">
+          <div class="flip-face flip-front"><svg class="icon"><use href="#icon-vada-pav"/></svg></div>
+          <div class="flip-face flip-back"><p>Hand-pressed, every batch</p></div>
+        </div></span>
+        <span><div class="flip-inner">
+          <div class="flip-face flip-front"><svg class="icon"><use href="#icon-misal"/></svg></div>
+          <div class="flip-face flip-back"><p>Kolhapuri fire, in-house blend</p></div>
+        </div></span>
+        <span><div class="flip-inner">
+          <div class="flip-face flip-front"><svg class="icon"><use href="#icon-dabeli"/></svg></div>
+          <div class="flip-face flip-back"><p>Sweet, tangy, always fresh</p></div>
+        </div></span>
+        <span><div class="flip-inner">
+          <div class="flip-face flip-front"><svg class="icon"><use href="#icon-mastani"/></svg></div>
+          <div class="flip-face flip-back"><p>Mumbai's favorite, chilled</p></div>
+        </div></span>
       </div>
     </div>
     <div class="about-copy">
@@ -259,13 +275,20 @@
       <h2>A Taste of the Menu</h2>
       <p>Six dishes people come back for.</p>
     </div>
-    <div class="gallery-grid">
-      <div class="gallery-tile big"><svg class="icon"><use href="#icon-vada-pav"/></svg><p>VIP Vada Pav</p></div>
-      <div class="gallery-tile"><svg class="icon"><use href="#icon-misal"/></svg><p>Misal Pav</p></div>
-      <div class="gallery-tile"><svg class="icon"><use href="#icon-dabeli"/></svg><p>Dabeli</p></div>
-      <div class="gallery-tile"><svg class="icon"><use href="#icon-pav-bhaji"/></svg><p>Pav Bhaji</p></div>
-      <div class="gallery-tile"><svg class="icon"><use href="#icon-mastani"/></svg><p>Mango Mastani</p></div>
-      <div class="gallery-tile"><svg class="icon"><use href="#icon-chai"/></svg><p>Ginger Chai</p></div>
+    <div class="gallery-carousel-wrap">
+      <div class="gallery-carousel" id="galleryCarousel">
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-vada-pav"/></svg><p>VIP Vada Pav</p></div>
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-misal"/></svg><p>Misal Pav</p></div>
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-dabeli"/></svg><p>Dabeli</p></div>
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-pav-bhaji"/></svg><p>Pav Bhaji</p></div>
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-mastani"/></svg><p>Mango Mastani</p></div>
+        <div class="gallery-tile"><svg class="icon"><use href="#icon-chai"/></svg><p>Ginger Chai</p></div>
+      </div>
+      <div class="carousel-controls">
+        <button class="carousel-btn transition-all duration-300 ease-out hover:scale-110 hover:border-[#e8a33d]" id="carouselPrev" aria-label="Rotate carousel left">‹</button>
+        <p class="carousel-hint">Drag to rotate, or use the arrows</p>
+        <button class="carousel-btn transition-all duration-300 ease-out hover:scale-110 hover:border-[#e8a33d]" id="carouselNext" aria-label="Rotate carousel right">›</button>
+      </div>
     </div>
   </div>
 </section>
@@ -435,5 +458,8 @@
     if (window.lottie) lottie.loadAnimation({ container: document.getElementById('lottieSpark'), renderer: 'svg', loop: true, autoplay: true, animationData: data });
   }).catch(() => {});
 </script>
+<!-- Three.js gallery carousel + Theatre.js hero float -- separate module
+     since it uses ES imports (Three.js, Theatre.js core), unlike script.js. -->
+<script type="module" src="animations-3d.js"></script>
 </body>
 </html>
