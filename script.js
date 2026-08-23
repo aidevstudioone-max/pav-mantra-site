@@ -416,6 +416,50 @@ function initHeroActionsHover() {
   });
 }
 
+// ---------- Hero typing kicker ----------
+// Cycles through signature dish names with a type/delete effect. Falls back
+// to the first word, static, when the user prefers reduced motion.
+function initHeroTyping() {
+  const el = document.getElementById("heroTyping");
+  if (!el) return;
+
+  const words = ["VIP Vada Pav", "Kolhapuri Misal Pav", "Dabeli", "Pav Bhaji", "Mastani"];
+  if (reduceMotion) {
+    el.textContent = words[0];
+    return;
+  }
+
+  const typeSpeed = 70;
+  const deleteSpeed = 40;
+  const pauseDelay = 1400;
+  let wordIndex = 0;
+  let charIndex = 0;
+  let deleting = false;
+
+  function tick() {
+    const word = words[wordIndex];
+    if (!deleting) {
+      charIndex++;
+      el.textContent = word.slice(0, charIndex);
+      if (charIndex === word.length) {
+        deleting = true;
+        setTimeout(tick, pauseDelay);
+        return;
+      }
+      setTimeout(tick, typeSpeed);
+    } else {
+      charIndex--;
+      el.textContent = word.slice(0, charIndex);
+      if (charIndex === 0) {
+        deleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+      }
+      setTimeout(tick, deleteSpeed);
+    }
+  }
+  tick();
+}
+
 // ---------- Scroll reveals ----------
 // Fades + slides sections in as they scroll into view, and fades them back
 // out when they scroll out of view (either direction) so the animation
@@ -551,6 +595,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   playHeroIntro();
   initHeroActionsHover();
+  initHeroTyping();
   initScrollReveals();
   initGalleryHover();
   initAboutGridHover();
